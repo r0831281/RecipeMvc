@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RecipeMvc.Data;
 using RecipeMvc.Models;
+using RecipeMvc.Models.ViewModels;
 
 namespace RecipeMvc.Areas.Admin.Controllers
 {
@@ -29,25 +30,33 @@ namespace RecipeMvc.Areas.Admin.Controllers
         // GET: Admin/Recipes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Recipes == null)
+            var listvm = new RecipeIngredientsViewModel();
+
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var recipe = await _context.Recipes
+            listvm.Recipe = await _context.Recipes
                 .FirstOrDefaultAsync(m => m.RecipeId == id);
-            if (recipe == null)
+            listvm.Ingredients = new SelectList(_context.ingredients.OrderBy(i => i.Name), "IngredientId", "Name");
+            listvm.RecipeIngredients = _context.RecipeIngredients.Include(i => i.Ingredient).Where(i => i.Ingredient.Id == id).ToList();
+            if (listvm.Recipe == null)
             {
                 return NotFound();
             }
 
-            return View(recipe);
+            return View(listvm);
         }
 
         // GET: Admin/Recipes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var ingredients = new RecipeIngredientsViewModel();
+            ingredients.Ingredients = new SelectList(_context.ingredients.OrderBy(i => i.Name), "Id", "Name");
+            ingredients.Recipe = new Recipe();
+   
+            return View(ingredients);
         }
 
         // POST: Admin/Recipes/Create
@@ -55,13 +64,21 @@ namespace RecipeMvc.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RecipeId,Name,RecipePortions,Instructions")] Recipe recipe)
+        public async Task<IActionResult> Create([Bind("RecipeId,Name,RecipePortions,Instructions")] Recipe recipe, int ingredientId = 0)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && ingredientId == 0)
             {
                 _context.Add(recipe);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+            }
+            else if (ModelState.IsValid)
+            {
+                var recipeIngredient = new RecipeIngredient(ingredientId, recipe.RecipeId);
+                recipeIngredient.Recipe = recipe;
+                _context.Add(recipeIngredient);
+                await _context.SaveChangesAsync();
+                return View();
             }
             return View(recipe);
         }
