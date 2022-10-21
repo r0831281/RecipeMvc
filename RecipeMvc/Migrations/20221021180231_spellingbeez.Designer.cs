@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecipeMvc.Data;
 
@@ -11,9 +12,10 @@ using RecipeMvc.Data;
 namespace RecipeMvc.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221021180231_spellingbeez")]
+    partial class spellingbeez
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -236,8 +238,8 @@ namespace RecipeMvc.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("PircePerUnit")
-                        .HasColumnType("decimal(6,2)");
+                    b.Property<double>("PircePerUnit")
+                        .HasColumnType("float");
 
                     b.Property<string>("Unit")
                         .IsRequired()

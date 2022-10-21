@@ -48,8 +48,8 @@ namespace RecipeMvc.Areas.Admin.Controllers
         // GET: Admin/Ingredients/Create
         public IActionResult Create()
         {
-            var vm = new RecipeIngredientsViewModel();
-            return View(vm);
+        
+            return View();
         }
 
         // POST: Admin/Ingredients/Create

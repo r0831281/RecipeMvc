@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RecipeMvc.Models
@@ -7,7 +8,8 @@ namespace RecipeMvc.Models
 	{
 		public int Id { get; set; }
 		public string Name { get; set; }
-		[Column(TypeName = "decimal(18, 2)")]
+        [Column(TypeName = "decimal(6, 2)")]
+        [Range(0.01, 100.00, ErrorMessage = "Price must be between 0.01 and 100.00")]
         public decimal PircePerUnit { get; set; }
 		public string Unit { get; set; }
 
