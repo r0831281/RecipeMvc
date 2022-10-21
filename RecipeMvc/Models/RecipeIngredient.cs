@@ -9,7 +9,7 @@
 		}
 
         public int Id { get; set; }
-		public double Measurment { get; set; }
+		public double Measurement { get; set; }
 		public string Unit { get; set; }
 
 		public string Instructions { get; set; }

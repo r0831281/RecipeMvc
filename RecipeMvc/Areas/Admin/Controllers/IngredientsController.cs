@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RecipeMvc.Data;
 using RecipeMvc.Models;
+using RecipeMvc.Models.ViewModels;
 
 namespace RecipeMvc.Areas.Admin.Controllers
 {
@@ -47,7 +48,8 @@ namespace RecipeMvc.Areas.Admin.Controllers
         // GET: Admin/Ingredients/Create
         public IActionResult Create()
         {
-            return View();
+            var vm = new RecipeIngredientsViewModel();
+            return View(vm);
         }
 
         // POST: Admin/Ingredients/Create

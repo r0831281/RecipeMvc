@@ -64,23 +64,23 @@ namespace RecipeMvc.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RecipeId,Name,RecipePortions,Instructions")] Recipe recipe, int ingredientId = 0)
+        public async Task<IActionResult> Create([Bind("RecipeId,Name,RecipePortions,Instructions")] RecipeIngredientsViewModel vm)
         {
-            if (ModelState.IsValid && ingredientId == 0)
+            if (ModelState.IsValid && vm.ingredientId == 0)
             {
-                _context.Add(recipe);
+                _context.Add(vm.Recipe);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             else if (ModelState.IsValid)
             {
-                var recipeIngredient = new RecipeIngredient(ingredientId, recipe.RecipeId);
-                recipeIngredient.Recipe = recipe;
+                var recipeIngredient = new RecipeIngredient(vm.ingredientId, vm.Recipe.RecipeId);
+                recipeIngredient.Recipe = vm.Recipe;
                 _context.Add(recipeIngredient);
                 await _context.SaveChangesAsync();
                 return View();
             }
-            return View(recipe);
+            return View(vm);
         }
 
         // GET: Admin/Recipes/Edit/5
