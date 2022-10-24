@@ -6,7 +6,7 @@ namespace RecipeMvc.Models.ViewModels
     {
         public Recipe Recipe { get; set; }
         public List<RecipeIngredient>? RecipeIngredients { get; set; }
-        public SelectList Ingredients { get; set; }
-        public int ingredientId { get; set; }
+        public RecipeIngredient RecipeIngredient { get; set; }
+        public SelectList? Ingredients { get; set; }
     }
 }

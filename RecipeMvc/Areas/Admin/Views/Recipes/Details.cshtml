@@ -32,10 +32,14 @@
             @Html.DisplayNameFor(model => model.RecipeIngredients)
         </dt>
         <dd class = "col-sm-10">
-            @foreach (RecipeIngredient i in Model.RecipeIngredients)
-            {
-                @i.Ingredient.Name;
-            }
+                @if (Model.RecipeIngredients != null)
+                {
+                    foreach (var item in Model.RecipeIngredients)
+                    {
+                            <b>@item.Ingredient.Name</b>
+                            <p>@item.Measurement @item.Unit </p>     
+                    }
+                }
             
         </dd>
     </dl>

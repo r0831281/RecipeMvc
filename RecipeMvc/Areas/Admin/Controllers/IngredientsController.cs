@@ -36,7 +36,7 @@ namespace RecipeMvc.Areas.Admin.Controllers
             }
 
             var ingredient = await _context.ingredients
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.IngredientId == id);
             if (ingredient == null)
             {
                 return NotFound();
@@ -91,7 +91,7 @@ namespace RecipeMvc.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,PircePerUnit,Unit")] Ingredient ingredient)
         {
-            if (id != ingredient.Id)
+            if (id != ingredient.IngredientId)
             {
                 return NotFound();
             }
@@ -105,7 +105,7 @@ namespace RecipeMvc.Areas.Admin.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!IngredientExists(ingredient.Id))
+                    if (!IngredientExists(ingredient.IngredientId))
                     {
                         return NotFound();
                     }
@@ -128,7 +128,7 @@ namespace RecipeMvc.Areas.Admin.Controllers
             }
 
             var ingredient = await _context.ingredients
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.IngredientId == id);
             if (ingredient == null)
             {
                 return NotFound();
@@ -158,7 +158,7 @@ namespace RecipeMvc.Areas.Admin.Controllers
 
         private bool IngredientExists(int id)
         {
-          return _context.ingredients.Any(e => e.Id == id);
+          return _context.ingredients.Any(e => e.IngredientId == id);
         }
     }
 }

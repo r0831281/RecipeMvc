@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -40,7 +41,7 @@ namespace RecipeMvc.Areas.Admin.Controllers
             listvm.Recipe = await _context.Recipes
                 .FirstOrDefaultAsync(m => m.RecipeId == id);
             listvm.Ingredients = new SelectList(_context.ingredients.OrderBy(i => i.Name), "IngredientId", "Name");
-            listvm.RecipeIngredients = _context.RecipeIngredients.Include(i => i.Ingredient).Where(i => i.Ingredient.Id == id).ToList();
+            listvm.RecipeIngredients = await _context.RecipeIngredients.Where(i => i.Recipe.RecipeId == id).Include(i => i.Ingredient).ToListAsync();
             if (listvm.Recipe == null)
             {
                 return NotFound();
@@ -50,35 +51,53 @@ namespace RecipeMvc.Areas.Admin.Controllers
         }
 
         // GET: Admin/Recipes/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> CreateAsync(int? id = 0)
         {
-            var ingredients = new RecipeIngredientsViewModel();
-            ingredients.Ingredients = new SelectList(_context.ingredients.OrderBy(i => i.Name), "Id", "Name");
-            ingredients.Recipe = new Recipe();
-   
-            return View(ingredients);
-        }
+            RecipeIngredientsViewModel recipeIngredientsVM = new RecipeIngredientsViewModel();
+            recipeIngredientsVM.RecipeIngredient = new RecipeIngredient();
+            recipeIngredientsVM.Ingredients = new SelectList(_context.ingredients.OrderBy(i => i.Name), "IngredientId", "Name");
+            recipeIngredientsVM.RecipeIngredients = await _context.RecipeIngredients.Where(r => r.RecipeId == id).ToListAsync();
+            if (id == 0)
+            {
+                recipeIngredientsVM.Recipe = new Recipe();
+            }
+            else
+            {
+                recipeIngredientsVM.Recipe = _context.Recipes.FirstOrDefault(i => i.RecipeId == id);
 
+            }
+
+            return View(recipeIngredientsVM);
+        }
         // POST: Admin/Recipes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RecipeId,Name,RecipePortions,Instructions")] RecipeIngredientsViewModel vm)
+        public async Task<IActionResult> Create(RecipeIngredientsViewModel vm)
         {
-            if (ModelState.IsValid && vm.ingredientId == 0)
+            vm.Ingredients = new SelectList(_context.ingredients.OrderBy(i => i.Name), "Id", "Name");
+
+            if (ModelState.IsValid && vm.Recipe.RecipeId == 0)
             {
                 _context.Add(vm.Recipe);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            else if (ModelState.IsValid)
-            {
-                var recipeIngredient = new RecipeIngredient(vm.ingredientId, vm.Recipe.RecipeId);
-                recipeIngredient.Recipe = vm.Recipe;
-                _context.Add(recipeIngredient);
+                vm.RecipeIngredient.RecipeId = vm.Recipe.RecipeId;
+                _context.Add(vm.RecipeIngredient);
+                
+                var id = vm.Recipe.RecipeId;
                 await _context.SaveChangesAsync();
-                return View();
+                return RedirectToAction("Create", new { id = id });
+            }
+            else if(ModelState.IsValid)
+            {
+                vm.RecipeIngredient.RecipeId = vm.Recipe.RecipeId;
+                _context.Add(vm.RecipeIngredient);
+
+                var id = vm.Recipe.RecipeId;
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Create", new { id = id });
+
             }
             return View(vm);
         }
@@ -91,12 +110,17 @@ namespace RecipeMvc.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var recipe = await _context.Recipes.FindAsync(id);
-            if (recipe == null)
+            var vm = new RecipeIngredientsViewModel();
+            vm.Ingredients = new SelectList(_context.ingredients.OrderBy(i => i.Name), "Id", "Name");
+            vm.Recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.RecipeId == id);
+            vm.RecipeIngredients = await _context.RecipeIngredients.Include(i => i.Ingredient).Where(i => i.Ingredient.IngredientId == id).ToListAsync();
+
+            
+            if (vm.Recipe == null)
             {
                 return NotFound();
             }
-            return View(recipe);
+            return View(vm);
         }
 
         // POST: Admin/Recipes/Edit/5
